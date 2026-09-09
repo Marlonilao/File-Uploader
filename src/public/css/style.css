@@ -1,0 +1,168 @@
+/* ============================================================
+   Tokens
+   ============================================================ */
+
+:root {
+  --bg: #f5f4f1;
+  --card: #ffffff;
+  --border: #d9d6d1;
+  --text: #1c1b19;
+  --muted: #6b6862;
+  --brand: #1f5fb0;
+  --brand-dark: #1a4d90;
+  --danger: #b42318;
+  --danger-bg: #fdf1f0;
+  --success: #05603a;
+  --success-bg: #edfbf3;
+}
+
+/* ============================================================
+   Base
+   ============================================================ */
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 1rem;
+  background: var(--bg);
+  color: var(--text);
+  font-family:
+    system-ui,
+    -apple-system,
+    'Segoe UI',
+    sans-serif;
+  font-size: 16px;
+}
+
+/* ============================================================
+   Layout
+   ============================================================ */
+
+.auth {
+  width: 100%;
+  max-width: 420px;
+}
+
+.auth__footer {
+  margin-top: 1rem;
+  text-align: center;
+  font-size: 0.875rem;
+  color: var(--muted);
+}
+
+.auth__footer a {
+  color: var(--brand);
+}
+
+/* ============================================================
+   Components
+   ============================================================ */
+
+/* Card */
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.5rem;
+}
+
+.card__title {
+  margin: 0 0 1.25rem;
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+/* Alert — the errors partial renders a ul, the success partial a p.
+   list-style and the reset margins cover both. */
+
+.alert {
+  margin: 0 0 1rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
+  list-style: none;
+  background: var(--danger-bg);
+  color: var(--danger);
+  font-size: 0.875rem;
+}
+
+.alert li + li {
+  margin-top: 0.25rem;
+}
+
+.alert--success {
+  background: var(--success-bg);
+  color: var(--success);
+}
+
+/* Field */
+
+.field {
+  margin-bottom: 1rem;
+}
+
+.field label {
+  display: block;
+  margin-bottom: 0.375rem;
+  font-size: 0.875rem;
+  color: var(--muted);
+}
+
+.field input {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--card);
+  color: var(--text);
+  font-size: 0.875rem;
+  font-family: inherit;
+}
+
+/* Keep this. It is the only cue a keyboard user has for where they are. */
+
+.field input:focus {
+  outline: 2px solid var(--brand);
+  outline-offset: 1px;
+  border-color: var(--brand);
+}
+
+/* Field row — two fields side by side. Must come after .field so the
+   margin reset below wins. */
+
+.field-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.field-row .field {
+  margin-bottom: 0;
+}
+
+/* Button */
+
+.btn {
+  width: 100%;
+  padding: 0.625rem 0.75rem;
+  border: 1px solid var(--brand-dark);
+  border-radius: 6px;
+  background: var(--brand);
+  color: #fff;
+  font-size: 0.875rem;
+  font-family: inherit;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.btn:hover {
+  background: var(--brand-dark);
+}
