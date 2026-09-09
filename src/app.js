@@ -6,6 +6,7 @@ const session = require('express-session');
 const prisma = require('./lib/prisma');
 const { PrismaSessionStore } = require('@quixo3/prisma-session-store');
 const passport = require('passport');
+const { requireAuth } = require('./middlewares/auth');
 
 require('./passport');
 
@@ -37,8 +38,8 @@ app.use(
 app.use(passport.initialize());
 app.use(passport.session());
 
-app.get('/', (req, res) => {
-  res.render('index');
+app.get('/', requireAuth, (req, res) => {
+  res.render('index', { user: req.user });
 });
 
 app.use('/signup', require('./routes/signupRouter'));
