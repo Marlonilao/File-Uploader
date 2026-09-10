@@ -56,13 +56,16 @@ app.use('/logout', require('./routes/logoutRouter'));
 app.use('/folders', require('./routes/folderRouter'));
 app.use('/files', require('./routes/fileRouter'));
 
-// app.use((req, res) => {
-//   res.status(404).render('error', { message: 'Page not found.' });
-// });
+// Nothing matched above, so this is a 404.
+app.use((req, res) => {
+  res.status(404).render('error', { message: 'Page not found.' });
+});
 
-// app.use((err, req, res, next) => {
-//   console.error(err);
-//   res.status(500).render('error', { message: 'Internal server error.' });
-// });
+app.use((err, req, res, _next) => {
+  console.error(err);
+  res
+    .status(500)
+    .render('error', { message: 'Something went wrong on our end.' });
+});
 
 module.exports = app;
