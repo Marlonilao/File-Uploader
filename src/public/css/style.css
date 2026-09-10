@@ -301,6 +301,59 @@ body {
   margin-top: 1rem;
 }
 
+.details {
+  margin: 0 0 1.25rem;
+}
+
+.details__row {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.5rem 0;
+  border-top: 1px solid var(--border);
+  font-size: 0.875rem;
+}
+
+.details__row:first-child {
+  border-top: none;
+}
+
+.details dt {
+  color: var(--muted);
+}
+
+.details dd {
+  margin: 0;
+  text-align: right;
+  word-break: break-word;
+}
+
+/* .btn is styled for <button>, which centers its text by default.
+   An <a> does not, so it needs this to match. */
+.btn--link {
+  display: block;
+  text-align: center;
+  text-decoration: none;
+}
+
+.actions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.actions > * {
+  flex: 1;
+}
+
+.btn--danger {
+  border-color: var(--danger);
+  background: var(--card);
+  color: var(--danger);
+}
+
+.btn--danger:hover {
+  background: var(--danger-bg);
+}
 /* ============================================================
    Responsive
    ============================================================ */

@@ -54,5 +54,15 @@ app.use('/signup', require('./routes/signupRouter'));
 app.use('/login', require('./routes/loginRouter'));
 app.use('/logout', require('./routes/logoutRouter'));
 app.use('/folders', require('./routes/folderRouter'));
+app.use('/files', require('./routes/fileRouter'));
+
+// app.use((req, res) => {
+//   res.status(404).render('error', { message: 'Page not found.' });
+// });
+
+// app.use((err, req, res, next) => {
+//   console.error(err);
+//   res.status(500).render('error', { message: 'Internal server error.' });
+// });
 
 module.exports = app;
