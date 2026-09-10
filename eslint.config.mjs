@@ -21,5 +21,11 @@ export default defineConfig([
     },
   },
   { files: ['**/*.js'], languageOptions: { sourceType: 'commonjs' } },
+  {
+    // Files in public/ run in the browser, so document and window exist
+    // there but the Node globals do not.
+    files: ['src/public/**/*.js'],
+    languageOptions: { globals: globals.browser },
+  },
   eslintConfigPrettier,
 ]);
