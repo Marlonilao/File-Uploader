@@ -38,8 +38,16 @@ app.use(
 app.use(passport.initialize());
 app.use(passport.session());
 
-app.get('/', requireAuth, (req, res) => {
-  res.render('index', { user: req.user });
+app.get('/', requireAuth, async (req, res, next) => {
+  try {
+    const root = await prisma.folder.findFirst({
+      where: { userId: req.user.id, parentId: null },
+    });
+
+    res.redirect(`/folders/${root.id}`);
+  } catch (err) {
+    next(err);
+  }
 });
 
 app.use('/signup', require('./routes/signupRouter'));
