@@ -45,5 +45,6 @@ app.get('/', requireAuth, (req, res) => {
 app.use('/signup', require('./routes/signupRouter'));
 app.use('/login', require('./routes/loginRouter'));
 app.use('/logout', require('./routes/logoutRouter'));
+app.use('/folders', require('./routes/folderRouter'));
 
 module.exports = app;
