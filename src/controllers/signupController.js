@@ -10,8 +10,8 @@ const validateUser = [
   body('firstName')
     .trim()
     .notEmpty()
-    .isAlpha()
-    .withMessage('First name must only contain letters'),
+    .matches(/^[A-Za-z]+(?: [A-Za-z]+)*$/)
+    .withMessage('First name must only contain letters and single spaces'),
   body('lastName')
     .trim()
     .notEmpty()
