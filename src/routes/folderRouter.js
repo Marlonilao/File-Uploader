@@ -1,6 +1,11 @@
 const { Router } = require('express');
 const { requireAuth } = require('../middlewares/auth');
-const { getFolder, postFolder } = require('../controllers/folderController');
+const {
+  getFolder,
+  postFolder,
+  postFile,
+} = require('../controllers/folderController');
+const { upload } = require('../middlewares/upload');
 
 const folderRouter = Router();
 
@@ -10,5 +15,8 @@ folderRouter.use(requireAuth);
 
 folderRouter.get('/:id', getFolder);
 folderRouter.post('/:id/children', postFolder);
+// upload.single('file') runs before the controller and populates req.file.
+// The string must match the name attribute on the form's file input.
+folderRouter.post('/:id/files', upload.single('file'), postFile);
 
 module.exports = folderRouter;

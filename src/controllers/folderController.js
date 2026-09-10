@@ -75,7 +75,43 @@ const postFolder = async (req, res, next) => {
   }
 };
 
+const postFile = async (req, res, next) => {
+  try {
+    const folderId = Number(req.params.id);
+
+    const folder = await prisma.folder.findFirst({
+      where: { id: folderId, userId: req.user.id },
+    });
+    if (!folder)
+      return res.status(404).render('error', { message: 'Folder not found.' });
+
+    // Multer puts the parsed file on req.file. It is undefined when the
+    // form was submitted with no file selected.
+    if (!req.file) {
+      return res
+        .status(400)
+        .render('error', { message: 'No file was uploaded.' });
+    }
+
+    await prisma.file.create({
+      data: {
+        name: req.file.originalname,
+        size: req.file.size,
+        mimeType: req.file.mimetype,
+        storedAt: req.file.filename,
+        userId: req.user.id,
+        folderId: folder.id,
+      },
+    });
+
+    res.redirect(`/folders/${folder.id}`);
+  } catch (err) {
+    next(err);
+  }
+};
+
 module.exports = {
   getFolder,
   postFolder,
+  postFile,
 };
