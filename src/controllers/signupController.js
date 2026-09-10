@@ -71,9 +71,13 @@ const handleSignup = [
           username,
           email,
           password: hashedPassword,
+
+          folders: {
+            create: { name: 'My files' },
+          },
         },
       });
-      res.render('login', { success: 'User registered successfully' });
+      res.redirect('login');
     } catch (error) {
       console.error(error);
       res.status(500).send('Error signing up');
