@@ -4,6 +4,7 @@ const {
   getFolder,
   postFolder,
   postFile,
+  deleteFolder,
 } = require('../controllers/folderController');
 const { upload } = require('../middlewares/upload');
 
@@ -18,5 +19,7 @@ folderRouter.post('/:id/children', postFolder);
 // upload.single('file') runs before the controller and populates req.file.
 // The string must match the name attribute on the form's file input.
 folderRouter.post('/:id/files', upload.single('file'), postFile);
+
+folderRouter.post('/:id/delete', deleteFolder);
 
 module.exports = folderRouter;

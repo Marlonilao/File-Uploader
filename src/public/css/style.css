@@ -132,6 +132,17 @@ body {
   font-weight: 500;
 }
 
+.card__header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.card__header .card__title {
+  margin-bottom: 1.25rem;
+}
+
 /* Alert — the errors partial renders a ul, the success partial a p.
    list-style and the reset margins cover both. */
 
@@ -353,6 +364,12 @@ body {
 
 .btn--danger:hover {
   background: var(--danger-bg);
+}
+
+.btn--small {
+  width: auto;
+  padding: 0.375rem 0.75rem;
+  font-size: 0.8125rem;
 }
 /* ============================================================
    Responsive

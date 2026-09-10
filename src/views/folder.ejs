@@ -54,7 +54,15 @@
     </div>
 
     <div class="card">
-      <h2 class="card__title"><%= folder.name %></h2>
+      <div class="card__header">
+        <h2 class="card__title"><%= folder.name %></h2>
+
+        <% if (folder.parentId) { %>
+        <form method="post" action="/folders/<%= folder.id %>/delete" onsubmit="return confirm('Delete this folder and everything in it?')">
+          <button type="submit" class="btn btn--danger btn--small">Delete folder</button>
+        </form>
+        <% } %>
+      </div>
 
       <% if (folders.length === 0 && files.length === 0) { %>
       <p class="empty">This folder is empty.</p>
@@ -78,5 +86,3 @@
     </div>
   </main>
 </body>
-
-</html>
