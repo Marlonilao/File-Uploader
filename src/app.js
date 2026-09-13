@@ -58,14 +58,18 @@ app.use('/files', require('./routes/fileRouter'));
 
 // Nothing matched above, so this is a 404.
 app.use((req, res) => {
-  res.status(404).render('error', { message: 'Page not found.' });
+  res.status(404).render('error', {
+    status: 404,
+    message: 'We could not find that page.',
+  });
 });
 
 app.use((err, req, res, _next) => {
   console.error(err);
-  res
-    .status(500)
-    .render('error', { message: 'Something went wrong on our end.' });
+  res.status(500).render('error', {
+    status: 500,
+    message: 'Something went wrong on our end.',
+  });
 });
 
 module.exports = app;

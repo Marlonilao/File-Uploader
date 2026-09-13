@@ -15,7 +15,9 @@ const getFile = async (req, res, next) => {
   try {
     const file = await loadFile(Number(req.params.id), req.user.id);
     if (!file)
-      return res.status(404).render('error', { message: 'File not found.' });
+      return res
+        .status(404)
+        .render('error', { status: 404, message: 'Folder not found.' });
 
     res.render('file', { user: req.user, file });
   } catch (err) {
@@ -27,7 +29,9 @@ const downloadFile = async (req, res, next) => {
   try {
     const file = await loadFile(Number(req.params.id), req.user.id);
     if (!file)
-      return res.status(404).render('error', { message: 'File not found.' });
+      return res
+        .status(404)
+        .render('error', { status: 404, message: 'Folder not found.' });
 
     const diskPath = path.join(__dirname, '../uploads', file.storedAt);
 
@@ -44,7 +48,9 @@ const deleteFile = async (req, res, next) => {
   try {
     const file = await loadFile(Number(req.params.id), req.user.id);
     if (!file)
-      return res.status(404).render('error', { message: 'File not found.' });
+      return res
+        .status(404)
+        .render('error', { status: 404, message: 'Folder not found.' });
 
     const diskPath = path.join(__dirname, '../uploads', file.storedAt);
 

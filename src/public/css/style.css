@@ -113,6 +113,31 @@ body {
 .crumbs__current {
   color: var(--text);
 }
+
+.error {
+  text-align: center;
+}
+
+/* The number is the whole design here, so it is allowed to be loud.
+   Nothing else on the page competes with it. */
+.error__code {
+  margin: 0;
+  font-size: 5rem;
+  font-weight: 600;
+  line-height: 1;
+  color: var(--border);
+}
+
+.error__message {
+  margin: 0.5rem 0 1.5rem;
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.error__link {
+  font-size: 0.875rem;
+  color: var(--brand);
+}
 /* ============================================================
    Components
    ============================================================ */

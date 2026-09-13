@@ -53,7 +53,9 @@ const getFolder = async (req, res, next) => {
     });
 
     if (!folder)
-      return res.status(404).render('error', { message: 'Folder not found.' });
+      return res
+        .status(404)
+        .render('error', { status: 404, message: 'Folder not found.' });
 
     const ancestors = await buildBreadcrumb(folder);
 
@@ -80,7 +82,9 @@ const postFolder = async (req, res, next) => {
     });
 
     if (!parent)
-      return res.status(404).render('error', { message: 'Folder not found.' });
+      return res
+        .status(404)
+        .render('error', { status: 404, message: 'Folder not found.' });
 
     await prisma.folder.create({
       data: {
@@ -104,14 +108,16 @@ const postFile = async (req, res, next) => {
       where: { id: folderId, userId: req.user.id },
     });
     if (!folder)
-      return res.status(404).render('error', { message: 'Folder not found.' });
+      return res
+        .status(404)
+        .render('error', { status: 404, message: 'Folder not found.' });
 
     // Multer puts the parsed file on req.file. It is undefined when the
     // form was submitted with no file selected.
     if (!req.file) {
       return res
         .status(400)
-        .render('error', { message: 'No file was uploaded.' });
+        .render('error', { status: 400, message: 'No file was uploaded.' });
     }
 
     await prisma.file.create({
@@ -140,13 +146,16 @@ const deleteFolder = async (req, res, next) => {
     });
 
     if (!folder) {
-      return res.status(404).render('error', { message: 'Folder not found.' });
+      return res
+        .status(404)
+        .render('error', { status: 404, message: 'Folder not found.' });
     }
 
     if (!folder.parentId) {
-      return res
-        .status(400)
-        .render('error', { message: 'The root folder cannot be deleted.' });
+      return res.status(400).render('error', {
+        status: 400,
+        message: 'The root folder cannot be deleted.',
+      });
     }
 
     const parentId = folder.parentId;
