@@ -74,34 +74,67 @@ const getFolder = async (req, res, next) => {
   }
 };
 
-const validateFolderName = [
+// The name rules are the same for both, so they live in one place. Each
+// array below adds its own duplicate check on top, because "duplicate"
+// means something different on create than on rename.
+const nameRules = () =>
   body('name')
     .trim()
     .notEmpty()
     .withMessage('Folder name is required.')
     .isLength({ max: 120 })
     .withMessage('Folder name must be 120 characters or fewer.')
-    // Windows and macOS both reject these in filenames, so block them here too.
     .matches(/^[^/\\:*?"<>|]+$/)
-    .withMessage('Folder name cannot contain / \\ : * ? " < > or |')
-    .body('name')
-    .custom(async (name, { req }) => {
-      const existing = await prisma.folder.findFirst({
-        where: {
-          name: name.trim(),
-          userId: req.user.id,
-          parentId: Number(req.params.id),
-        },
-      });
+    .withMessage('Folder name cannot contain / \\ : * ? " < > or |');
 
-      if (existing) {
-        throw new Error('A folder with that name already exists here.');
-      }
-    }),
+// On create the route id is the parent folder, so we look for a sibling
+// with the same name inside it.
+const validateFolderCreate = [
+  nameRules(),
+
+  body('name').custom(async (name, { req }) => {
+    const existing = await prisma.folder.findFirst({
+      where: {
+        name: name.trim(),
+        userId: req.user.id,
+        parentId: Number(req.params.id),
+      },
+    });
+
+    if (existing) {
+      throw new Error('A folder with that name already exists here.');
+    }
+  }),
+];
+
+// On rename the route id is the folder itself, so we compare against its
+// siblings — and a folder keeping its own name is not a conflict.
+const validateFolderRename = [
+  nameRules(),
+
+  body('name').custom(async (name, { req }) => {
+    const folderId = Number(req.params.id);
+
+    const folder = await prisma.folder.findUnique({ where: { id: folderId } });
+    if (!folder) return;
+
+    const existing = await prisma.folder.findFirst({
+      where: {
+        name: name.trim(),
+        userId: req.user.id,
+        parentId: folder.parentId,
+        id: { not: folder.id },
+      },
+    });
+
+    if (existing) {
+      throw new Error('A folder with that name already exists here.');
+    }
+  }),
 ];
 
 const postFolder = [
-  ...validateFolderName,
+  ...validateFolderCreate,
 
   async (req, res, next) => {
     try {
@@ -226,9 +259,59 @@ const deleteFolder = async (req, res, next) => {
   }
 };
 
+const renameFolder = [
+  ...validateFolderRename,
+
+  async (req, res, next) => {
+    try {
+      const folder = await loadFolder(Number(req.params.id), req.user.id);
+
+      if (!folder) {
+        return res
+          .status(404)
+          .render('error', { status: 404, message: 'Folder not found.' });
+      }
+
+      // Renaming the root would rename the user's whole drive, and the view
+      // hides the form there anyway.
+      if (!folder.parentId) {
+        return res.status(400).render('error', {
+          status: 400,
+          message: 'The root folder cannot be renamed.',
+        });
+      }
+
+      const errors = validationResult(req);
+
+      if (!errors.isEmpty()) {
+        const ancestors = await buildBreadcrumb(folder);
+
+        return res.status(400).render('folder', {
+          user: req.user,
+          folder,
+          ancestors,
+          folders: folder.children,
+          files: folder.files,
+          errors: errors.array(),
+        });
+      }
+
+      await prisma.folder.update({
+        where: { id: folder.id },
+        data: { name: req.body.name.trim() },
+      });
+
+      res.redirect(`/folders/${folder.id}`);
+    } catch (err) {
+      next(err);
+    }
+  },
+];
+
 module.exports = {
   getFolder,
   postFolder,
   postFile,
   deleteFolder,
+  renameFolder,
 };

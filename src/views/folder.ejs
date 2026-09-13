@@ -62,6 +62,16 @@
           <button type="submit" class="btn btn--danger btn--small">Delete folder</button>
         </form>
         <% } %>
+
+        <% if (folder.parentId) { %>
+        <form method="post" action="/folders/<%= folder.id %>/rename" class="inline-form">
+          <div class="field">
+            <label for="rename" class="sr-only">New name</label>
+            <input type="text" id="rename" name="name" value="<%= folder.name %>" required>
+          </div>
+          <button type="submit" class="btn btn--small">Rename</button>
+        </form>
+        <% } %>
       </div>
 
       <% if (folders.length === 0 && files.length === 0) { %>

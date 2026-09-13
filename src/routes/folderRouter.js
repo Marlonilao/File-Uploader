@@ -5,6 +5,7 @@ const {
   postFolder,
   postFile,
   deleteFolder,
+  renameFolder,
 } = require('../controllers/folderController');
 const { upload } = require('../middlewares/upload');
 
@@ -21,5 +22,7 @@ folderRouter.post('/:id/children', postFolder);
 folderRouter.post('/:id/files', upload.single('file'), postFile);
 
 folderRouter.post('/:id/delete', deleteFolder);
+
+folderRouter.post('/:id/rename', renameFolder);
 
 module.exports = folderRouter;
