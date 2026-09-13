@@ -1,6 +1,7 @@
 const prisma = require('../lib/prisma');
 const path = require('node:path');
 const fs = require('node:fs/promises');
+const { body, validationResult } = require('express-validator');
 
 // Walks up the parent chain so the view can render a breadcrumb.
 // Root first, and the folder itself is not included.
@@ -15,10 +16,21 @@ async function buildBreadcrumb(folder) {
 
     crumbs.unshift(current);
   }
-
   return crumbs;
 }
 
+// Both getFolder and the validation-error path need the same data, so the
+// query lives in one place. The userId is the ownership check — without it,
+// any logged-in user could read any folder by guessing an id.
+async function loadFolder(folderId, userId) {
+  return prisma.folder.findFirst({
+    where: { id: folderId, userId },
+    include: {
+      children: { orderBy: { name: 'asc' } },
+      files: { orderBy: { name: 'asc' } },
+    },
+  });
+}
 // Walks down the folder tree and returns every file inside it, at any depth.
 // Cascade delete removes the rows, but nothing removes the files on disk —
 // so we collect them first while the rows still exist.
@@ -40,22 +52,13 @@ async function collectFilesInTree(folderId) {
 
 const getFolder = async (req, res, next) => {
   try {
-    const folderId = Number(req.params.id);
+    const folder = await loadFolder(Number(req.params.id), req.user.id);
 
-    // The userId in the where clause is the ownership check. Without it,
-    // any logged-in user could read any folder by guessing an id.
-    const folder = await prisma.folder.findFirst({
-      where: { id: folderId, userId: req.user.id },
-      include: {
-        children: { orderBy: { name: 'asc' } },
-        files: { orderBy: { name: 'asc' } },
-      },
-    });
-
-    if (!folder)
+    if (!folder) {
       return res
         .status(404)
         .render('error', { status: 404, message: 'Folder not found.' });
+    }
 
     const ancestors = await buildBreadcrumb(folder);
 
@@ -71,34 +74,76 @@ const getFolder = async (req, res, next) => {
   }
 };
 
-const postFolder = async (req, res, next) => {
-  try {
-    const parentId = Number(req.params.id);
-    const name = req.body.name.trim();
+const validateFolderName = [
+  body('name')
+    .trim()
+    .notEmpty()
+    .withMessage('Folder name is required.')
+    .isLength({ max: 120 })
+    .withMessage('Folder name must be 120 characters or fewer.')
+    // Windows and macOS both reject these in filenames, so block them here too.
+    .matches(/^[^/\\:*?"<>|]+$/)
+    .withMessage('Folder name cannot contain / \\ : * ? " < > or |')
+    .body('name')
+    .custom(async (name, { req }) => {
+      const existing = await prisma.folder.findFirst({
+        where: {
+          name: name.trim(),
+          userId: req.user.id,
+          parentId: Number(req.params.id),
+        },
+      });
 
-    // Confirm the parent belongs to this user before writing anything into it.
-    const parent = await prisma.folder.findFirst({
-      where: { id: parentId, userId: req.user.id },
-    });
+      if (existing) {
+        throw new Error('A folder with that name already exists here.');
+      }
+    }),
+];
 
-    if (!parent)
-      return res
-        .status(404)
-        .render('error', { status: 404, message: 'Folder not found.' });
+const postFolder = [
+  ...validateFolderName,
 
-    await prisma.folder.create({
-      data: {
-        name,
-        userId: req.user.id,
-        parentId: parent.id,
-      },
-    });
+  async (req, res, next) => {
+    try {
+      const parent = await loadFolder(Number(req.params.id), req.user.id);
 
-    res.redirect(`/folders/${parent.id}`);
-  } catch (err) {
-    next(err);
-  }
-};
+      // The 404 comes first. There is no point showing a validation message
+      // for a folder the user cannot write to anyway.
+      if (!parent) {
+        return res
+          .status(404)
+          .render('error', { status: 404, message: 'Folder not found.' });
+      }
+
+      const errors = validationResult(req);
+
+      if (!errors.isEmpty()) {
+        const ancestors = await buildBreadcrumb(parent);
+
+        return res.status(400).render('folder', {
+          user: req.user,
+          folder: parent,
+          ancestors,
+          folders: parent.children,
+          files: parent.files,
+          errors: errors.array(),
+        });
+      }
+
+      await prisma.folder.create({
+        data: {
+          name: req.body.name.trim(),
+          userId: req.user.id,
+          parentId: parent.id,
+        },
+      });
+
+      res.redirect(`/folders/${parent.id}`);
+    } catch (err) {
+      next(err);
+    }
+  },
+];
 
 const postFile = async (req, res, next) => {
   try {
