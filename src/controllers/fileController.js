@@ -1,7 +1,5 @@
-const path = require('node:path');
 const prisma = require('../lib/prisma');
-const fs = require('node:fs/promises');
-
+const { supabase } = require('../lib/storage');
 // Same ownership pattern as folders: the userId in the where clause is what
 // stops one user from reading another user's file by guessing an id.
 async function loadFile(fileId, userId) {
@@ -32,13 +30,14 @@ const downloadFile = async (req, res, next) => {
       return res
         .status(404)
         .render('error', { status: 404, message: 'Folder not found.' });
+    const { data, error } = await supabase.storage
+      .from(process.env.SUPABASE_BUCKET)
+      .createSignedUrl(file.storedAt, 60, {
+        download: file.name,
+      });
+    if (error) throw error;
 
-    const diskPath = path.join(__dirname, '../uploads', file.storedAt);
-
-    // res.download sets Content-Disposition so the browser saves the file
-    // instead of trying to display it. The second argument is the name the
-    // user sees in their downloads folder — the original, not the random one.
-    res.download(diskPath, file.name);
+    res.redirect(data.signedUrl);
   } catch (err) {
     next(err);
   }
@@ -52,18 +51,12 @@ const deleteFile = async (req, res, next) => {
         .status(404)
         .render('error', { status: 404, message: 'Folder not found.' });
 
-    const diskPath = path.join(__dirname, '../uploads', file.storedAt);
+    const { error } = await supabase.storage
+      .from(process.env.SUPABASE_BUCKET)
+      .remove([file.storedAt]);
+    if (error) throw error;
 
-    // Delete the row first. If the disk delete fails we are left with an
-    // orphaned file, which is harmless. The other order would leave a row
-    // pointing at nothing, which breaks the download route.
     await prisma.file.delete({ where: { id: file.id } });
-
-    // ENOENT means the file was already gone — nothing to clean up, so it is
-    // not worth failing the request over.
-    await fs.unlink(diskPath).catch((err) => {
-      if (err.code !== 'ENOENT') throw err;
-    });
 
     res.redirect(`/folders/${file.folder.id}`);
   } catch (err) {

@@ -1,7 +1,8 @@
 const prisma = require('../lib/prisma');
 const path = require('node:path');
-const fs = require('node:fs/promises');
 const { body, validationResult } = require('express-validator');
+const crypto = require('node:crypto');
+const { supabase } = require('../lib/storage');
 
 // Walks up the parent chain so the view can render a breadcrumb.
 // Root first, and the folder itself is not included.
@@ -210,12 +211,24 @@ const postFile = async (req, res, next) => {
         .render('error', { status: 400, message: 'No file was uploaded.' });
     }
 
+    const extension = path.extname(req.file.originalname);
+    const storagePath = `${req.user.id}/${crypto.randomUUID()}${extension}`;
+
+    console.log('path:', JSON.stringify(storagePath));
+    const { error } = await supabase.storage
+      .from(process.env.SUPABASE_BUCKET)
+      .upload(storagePath, req.file.buffer, {
+        contentType: req.file.mimetype,
+      });
+
+    if (error) throw error;
+
     await prisma.file.create({
       data: {
         name: req.file.originalname,
         size: req.file.size,
         mimeType: req.file.mimetype,
-        storedAt: req.file.filename,
+        storedAt: storagePath,
         userId: req.user.id,
         folderId: folder.id,
       },
@@ -255,15 +268,10 @@ const deleteFolder = async (req, res, next) => {
 
     await prisma.folder.delete({ where: { id: folder.id } });
 
-    // Disk cleanup runs after the rows are gone. An orphaned file left behind
-    // by a failed unlink is harmless; a row pointing at a missing file is not.
-    for (const file of files) {
-      const diskPath = path.join(__dirname, '../uploads', file.storedAt);
-
-      await fs.unlink(diskPath).catch((err) => {
-        if (err.code !== 'ENOENT') throw err;
-      });
-    }
+    const { error } = await supabase.storage
+      .from(process.env.SUPABASE_BUCKET)
+      .remove(files.map((file) => file.storedAt));
+    if (error) throw error;
 
     res.redirect(`/folders/${parentId}`);
   } catch (err) {

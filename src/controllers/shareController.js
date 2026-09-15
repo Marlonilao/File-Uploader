@@ -1,5 +1,5 @@
 const prisma = require('../lib/prisma');
-const path = require('node:path');
+const { supabase } = require('../lib/storage');
 
 const DURATIONS = {
   '1d': 1,
@@ -159,10 +159,14 @@ const downloadSharedFile = async (req, res, next) => {
         .status(404)
         .render('error', { status: 404, message: 'File not found.' });
     }
+    const { data, error } = await supabase.storage
+      .from(process.env.SUPABASE_BUCKET)
+      .createSignedUrl(file.storedAt, 60, {
+        download: file.name,
+      });
+    if (error) throw error;
 
-    const diskPath = path.join(__dirname, '../uploads', file.storedAt);
-
-    res.download(diskPath, file.name);
+    res.redirect(data.signedUrl);
   } catch (err) {
     next(err);
   }

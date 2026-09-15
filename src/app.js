@@ -7,6 +7,7 @@ const prisma = require('./lib/prisma');
 const { PrismaSessionStore } = require('@quixo3/prisma-session-store');
 const passport = require('passport');
 const { requireAuth } = require('./middlewares/auth');
+const { supabase } = require('./lib/storage');
 
 require('./passport');
 
