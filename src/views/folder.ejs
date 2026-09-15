@@ -14,7 +14,9 @@
 
     <div class="topbar__user">
       <span><%= user.username %></span>
-      <a class="link-button" href="/logout">Log out</a>
+      <form action="/logout" method="POST">
+        <button type="submit" class="link-button">Log out</button>
+      </form>
     </div>
   </header>
 
