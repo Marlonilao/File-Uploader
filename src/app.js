@@ -55,6 +55,7 @@ app.use('/login', require('./routes/loginRouter'));
 app.use('/logout', require('./routes/logoutRouter'));
 app.use('/folders', require('./routes/folderRouter'));
 app.use('/files', require('./routes/fileRouter'));
+app.use('/share', require('./routes/shareRouter'));
 
 // Nothing matched above, so this is a 404.
 app.use((req, res) => {

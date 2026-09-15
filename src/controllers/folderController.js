@@ -62,12 +62,22 @@ const getFolder = async (req, res, next) => {
 
     const ancestors = await buildBreadcrumb(folder);
 
+    const shareToken = req.query.share || null;
+
+    // Built from the request so it works on localhost and in production
+    // without a hardcoded host.
+    const shareUrl = shareToken
+      ? `${req.protocol}://${req.get('host')}/share/${shareToken}`
+      : null;
+
     res.render('folder', {
       user: req.user,
       folder,
       ancestors,
       folders: folder.children,
       files: folder.files,
+      shareToken,
+      shareUrl,
     });
   } catch (err) {
     next(err);
@@ -160,6 +170,8 @@ const postFolder = [
           folders: parent.children,
           files: parent.files,
           errors: errors.array(),
+          shareToken: null,
+          shareUrl: null,
         });
       }
 
@@ -293,6 +305,8 @@ const renameFolder = [
           folders: folder.children,
           files: folder.files,
           errors: errors.array(),
+          shareToken: null,
+          shareUrl: null,
         });
       }
 

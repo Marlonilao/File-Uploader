@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= folder.name %></title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body class="page">
+  <header class="topbar">
+    <span class="topbar__brand">Drive</span>
+    <span class="topbar__user">Shared folder</span>
+  </header>
+
+  <main class="drive">
+    <% if (!isRoot) { %>
+    <nav class="crumbs">
+      <a href="/share/<%= share.token %>/folders/<%= folder.parentId %>">Back</a>
+    </nav>
+    <% } %>
+
+    <div class="card">
+      <h2 class="card__title"><%= folder.name %></h2>
+
+      <% if (folders.length === 0 && files.length === 0) { %>
+      <p class="empty">This folder is empty.</p>
+      <% } else { %>
+      <ul class="items">
+        <% folders.forEach(function (child) { %>
+        <li class="item">
+          <a href="/share/<%= share.token %>/folders/<%= child.id %>" class="item__name"><%= child.name %></a>
+          <span class="item__meta">Folder</span>
+        </li>
+        <% }); %>
+
+        <% files.forEach(function (file) { %>
+        <li class="item">
+          <a href="/share/<%= share.token %>/files/<%= file.id %>" class="item__name"><%= file.name %></a>
+          <span class="item__meta"><%= file.size %> bytes</span>
+        </li>
+        <% }); %>
+      </ul>
+      <% } %>
+    </div>
+
+    <p class="share-note">
+      This link expires <%= share.expiresAt.toLocaleDateString() %>.
+    </p>
+  </main>
+</body>
+
+</html>

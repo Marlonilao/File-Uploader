@@ -138,6 +138,14 @@ body {
   font-size: 0.875rem;
   color: var(--brand);
 }
+
+.share-note {
+  margin: 1rem 0 0;
+  text-align: center;
+  font-size: 0.8125rem;
+  color: var(--muted);
+}
+
 /* ============================================================
    Components
    ============================================================ */
@@ -217,6 +225,23 @@ body {
 /* Keep this. It is the only cue a keyboard user has for where they are. */
 
 .field input:focus {
+  outline: 2px solid var(--brand);
+  outline-offset: 1px;
+  border-color: var(--brand);
+}
+
+.field select {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--card);
+  color: var(--text);
+  font-size: 0.875rem;
+  font-family: inherit;
+}
+
+.field select:focus {
   outline: 2px solid var(--brand);
   outline-offset: 1px;
   border-color: var(--brand);
@@ -409,6 +434,26 @@ body {
   clip-path: inset(50%);
   white-space: nowrap;
 }
+
+.card__note {
+  margin: -0.75rem 0 1.25rem;
+  font-size: 0.8125rem;
+  color: var(--muted);
+}
+
+/* The token is long and has no spaces, so it needs an explicit break
+   rule or it will push the card wider than its container. */
+.share-link {
+  margin: 1rem 0 0;
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
+  background: var(--bg);
+  font-family: ui-monospace, monospace;
+  font-size: 0.75rem;
+  color: var(--muted);
+  word-break: break-all;
+}
+
 /* ============================================================
    Responsive
    ============================================================ */

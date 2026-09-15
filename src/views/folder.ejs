@@ -54,6 +54,27 @@
     </div>
 
     <div class="card">
+      <h2 class="card__title">Share this folder</h2>
+      <p class="card__note">Anyone with the link can view and download everything inside.</p>
+
+      <form action="/folders/<%= folder.id %>/share" method="POST" class="inline-form">
+        <div class="field">
+          <label for="duration">Link duration</label>
+          <select id="duration" name="duration">
+            <option value="1d">1 day</option>
+            <option value="10d">10 days</option>
+            <option value="30d">30 days</option>
+          </select>
+        </div>
+        <button type="submit" class="btn">Create link</button>
+      </form>
+
+      <% if (shareToken) { %>
+      <p class="share-link"><%= shareUrl %></p>
+      <% } %>
+    </div>
+
+    <div class="card">
       <div class="card__header">
         <h2 class="card__title"><%= folder.name %></h2>
 

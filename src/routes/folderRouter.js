@@ -8,6 +8,7 @@ const {
   renameFolder,
 } = require('../controllers/folderController');
 const { upload } = require('../middlewares/upload');
+const { createShare } = require('../controllers/shareController');
 
 const folderRouter = Router();
 
@@ -24,5 +25,7 @@ folderRouter.post('/:id/files', upload.single('file'), postFile);
 folderRouter.post('/:id/delete', deleteFolder);
 
 folderRouter.post('/:id/rename', renameFolder);
+
+folderRouter.post('/:id/share', createShare);
 
 module.exports = folderRouter;
