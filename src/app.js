@@ -71,6 +71,11 @@ app.use((req, res) => {
 
 app.use((err, req, res, _next) => {
   console.error(err);
+
+  // A response may already be on its way when the error surfaces. Rendering
+  // again throws, and an uncaught throw here takes the whole process down.
+  if (res.headersSent) return;
+
   res.status(500).render('error', {
     status: 500,
     message: 'Something went wrong on our end.',
