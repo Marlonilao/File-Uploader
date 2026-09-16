@@ -8,7 +8,7 @@
     "dev": "node --watch src/server.js",
     "start": "node src/server.js",
     "lint": "npx eslint .",
-    "build": "npx prisma generate && npx prisma migrate deploy"
+    "build": "npx prisma generate"
   },
   "repository": {
     "type": "git",
