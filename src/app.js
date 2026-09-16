@@ -7,7 +7,6 @@ const prisma = require('./lib/prisma');
 const { PrismaSessionStore } = require('@quixo3/prisma-session-store');
 const passport = require('passport');
 const { requireAuth } = require('./middlewares/auth');
-const { supabase } = require('./lib/storage');
 
 require('./passport');
 
@@ -21,9 +20,13 @@ app.set('view engine', 'ejs');
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 
+app.set('trust proxy', 1);
+
 app.use(
   session({
     cookie: {
+      secure: process.env.NODE_ENV === 'production',
+      httpOnly: true,
       maxAge: 30 * 24 * 60 * 60 * 1000,
     },
     secret: process.env.SECRET,
